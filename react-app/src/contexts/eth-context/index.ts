@@ -9,11 +9,6 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
  */
 function getAccount() {
   lastActiveAccount = window.localStorage.getItem(KEY);
-  if(provider.provider.hasOwnProperty('selectedAddress') && lastActiveAccount == (provider.provider as any).selectedAddress) {
-
-  } else {
-    lastActiveAccount = null;
-  }
   return lastActiveAccount;
 }
 
@@ -45,7 +40,6 @@ export const reducer = (state:any, action:any) => {
   let accounts:string[] = [];
   switch (type) {
     case actions.INIT:
-      console.log(11);
       address = getAccount();
       return {...state, address}
     case actions.CONNECT:
@@ -67,6 +61,14 @@ export const reducer = (state:any, action:any) => {
 
 export function init() {
   initialState.address = getAccount();
+  provider.getSigner().getAddress().then(res => {
+    if(res.toLowerCase() == String(initialState.address).toLowerCase()) {
+    } else {
+      initialState.address = null;
+      initialState.accounts = [];
+      window.localStorage.removeItem(KEY);
+    }
+  });
 }
 
 export function connect() {
